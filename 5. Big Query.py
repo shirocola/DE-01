@@ -105,7 +105,7 @@ with DAG(
         },
     )
 
-    # TODO: สร้าง t4 ที่เป็น BashOperator เพื่อใช้งานกับ BigQuery และใส่ dependencies
+    # สร้าง BashOperator เพื่อใช้งานกับ BigQuery และใส่ dependencies
 
     t4 = BashOperator(
         task_id="load_to_bq",
