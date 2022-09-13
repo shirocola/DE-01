@@ -38,7 +38,7 @@ spark.version
 """## Load Data"""
 
 # Download Data File
-!wget -O data.zip https://file.designil.com/zdOfUE+
+!wget -O data.zip https://..../....  # ใส่ link data
 !unzip data.zip
 
 dt = spark.read.csv('/content/ws2_data.csv', header = True, inferSchema = True, )
