@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-"""## Config DB credential: การใช้ config สำหรับเชื่อต่อ database"""
+"""## ใช้ config สำหรับเชื่อมต่อ database"""
 
 class Config:
   MYSQL_HOST = os.getenv("MYSQL_HOST")
@@ -54,9 +54,6 @@ cursor.close()
 print(tables)
 
 """## Query Table"""
-
-# ใข้ with statement แทน cursor.close()
-# TODO: มาลองเขียน SQL Query ข้อมูลจาก table audible_data ดูกัน
 
 with connection.cursor() as cursor:
   cursor.execute("SELECT * FROM audible_data;")
@@ -101,22 +98,22 @@ conversion_rate = pd.DataFrame(result_conversion_rate)
 
 conversion_rate
 
-#แปลงจาก index เป็น column date ธรรมดาเพื่อความสะดวกในการ join กับ table transaction
+#แปลงจาก index เป็น column date
 conversion_rate = conversion_rate.reset_index().rename(columns={"index": "date"})
 conversion_rate[:3]
 
 """# Join the data"""
 
-# ก็อปปี้ column timestamp เก็บเอาไว้ใน column ใหม่ชื่อ date เพื่อที่จะแปลงวันที่เป็น date เพื่อที่จะสามารถนำมา join กับข้อมูลค่าเงินได้
+# copy ตัว timestamp เป็น date เพื่อเตรียม join data
 transaction['date'] = transaction['timestamp']
 transaction
 
-# แปลงให้จาก timestamp เป็น date ในทั้ง 2 dataframe (transaction, conversion_rate)
+# แปลงให้จาก timestamp เป็น date ในทั้ง 2 dataframe
 transaction['date'] = pd.to_datetime(transaction['date']).dt.date
 conversion_rate['date'] = pd.to_datetime(conversion_rate['date']).dt.date
 transaction.head()
 
-# รวม 2 dataframe (transaction, conversion_rate) เข้าด้วยกันด้วยคำสั่ง merge
+# merge สอง column เข้าด้วยกัน
 final_df = transaction.merge(conversion_rate, how="left", left_on="date", right_on="date")
 final_df
 
@@ -128,7 +125,7 @@ final_df["Price"] = final_df["Price"].astype(float)
 
 final_df.dtypes
 
-#เพิ่ม column 'THBPrice' ที่เกิดจาก column Price * conversion_rate
+#สร้าง column 'THBPrice' โดยใช้ column Price * conversion_rate (หาราคาเป็นบาท)
 final_df["THBPrice"] = final_df["Price"] * final_df["conversion_rate"]
 final_df
 
