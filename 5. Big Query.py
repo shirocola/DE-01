@@ -45,7 +45,7 @@ def get_conversion_rate(conversion_rate_path):
 
 
 def merge_data(transaction_path, conversion_rate_path, output_path):
-    # อ่านจากไฟล์ สังเกตว่าใช้ path จากที่รับ parameter มา
+    
     transaction = pd.read_csv(transaction_path)
     conversion_rate = pd.read_csv(conversion_rate_path)
 
