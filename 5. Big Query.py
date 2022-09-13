@@ -28,8 +28,7 @@ def get_data_from_mysql(transaction_path):
     # Merge data
     df = audible_transaction.merge(audible_data, how="left", left_on="book_id", right_on="Book_ID")
 
-    # Save ไฟล์ CSV ไปที่ transaction_path ("/home/airflow/gcs/data/audible_data_merged.csv")
-    # จะไปอยู่ที่ GCS โดยอัตโนมัติ
+    # Save เป็น CSV ไปที่ transaction_path
     df.to_csv(transaction_path, index=False)
     print(f"Output to {transaction_path}")
 
@@ -67,7 +66,6 @@ def merge_data(transaction_path, conversion_rate_path, output_path):
     # save to CSV file
     final_df.to_csv(output_path, index=False)
     print(f"Output to {output_path}")
-    print("== End of Workshop 4 ʕ•́ᴥ•̀ʔっ♡ ==")
 
 
 with DAG(
