@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 
 MYSQL_CONNECTION = "mysql_default"   # ชื่อของ connection ใน Airflow
-CONVERSION_RATE_URL = "https://r2de2-workshop-vmftiryt6q-ts.a.run.app/usd_thb_conversion_rate"
+CONVERSION_RATE_URL = "https://Past Link Here" #ใส่ link data ที่นี่
 
 # path
 mysql_output_path = "/home/airflow/gcs/data/audible_data_merged.csv"
