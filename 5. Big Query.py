@@ -6,26 +6,26 @@ from airflow.utils.dates import days_ago
 import pandas as pd
 import requests
 
-MYSQL_CONNECTION = "mysql_default"   # ชื่อของ connection ใน Airflow ที่เซ็ตเอาไว้
+MYSQL_CONNECTION = "mysql_default"   # ชื่อของ connection ใน Airflow
 CONVERSION_RATE_URL = "https://r2de2-workshop-vmftiryt6q-ts.a.run.app/usd_thb_conversion_rate"
 
-# path ที่จะใช้
+# path
 mysql_output_path = "/home/airflow/gcs/data/audible_data_merged.csv"
 conversion_rate_output_path = "/home/airflow/gcs/data/conversion_rate.csv"
 final_output_path = "/home/airflow/gcs/data/output.csv"
 
 
 def get_data_from_mysql(transaction_path):
-    # รับ transaction_path มาจาก task ที่เรียกใช้
+    # 
 
-    # เรียกใช้ MySqlHook เพื่อต่อไปยัง MySQL จาก connection ที่สร้างไว้ใน Airflow
+    # ใช้ MySqlHook ต่อกับ MySQL_CONNECTION
     mysqlserver = MySqlHook(MYSQL_CONNECTION)
     
-    # Query จาก database โดยใช้ Hook ที่สร้าง ผลลัพธ์ได้ pandas DataFrame
+    # Query โดยใช้ pandas 
     audible_data = mysqlserver.get_pandas_df(sql="SELECT * FROM audible_data")
     audible_transaction = mysqlserver.get_pandas_df(sql="SELECT * FROM audible_transaction")
 
-    # Merge data จาก 2 DataFrame เหมือนใน workshop1
+    # Merge data
     df = audible_transaction.merge(audible_data, how="left", left_on="book_id", right_on="Book_ID")
 
     # Save ไฟล์ CSV ไปที่ transaction_path ("/home/airflow/gcs/data/audible_data_merged.csv")
@@ -39,7 +39,7 @@ def get_conversion_rate(conversion_rate_path):
     result_conversion_rate = r.json()
     df = pd.DataFrame(result_conversion_rate)
 
-    # เปลี่ยนจาก index ที่เป็น date ให้เป็น column ชื่อ date แทน แล้วเซฟไฟล์ CSV
+    # เปลี่ยน date ให้เป็น column
     df = df.reset_index().rename(columns={"index": "date"})
     df.to_csv(conversion_rate_path, index=False)
     print(f"Output to {conversion_rate_path}")
@@ -57,14 +57,14 @@ def merge_data(transaction_path, conversion_rate_path, output_path):
     # merge 2 DataFrame
     final_df = transaction.merge(conversion_rate, how="left", left_on="date", right_on="date")
     
-    # แปลงราคา โดยเอาเครื่องหมาย $ ออก และแปลงให้เป็น float
+    # convert string to float
     final_df["Price"] = final_df.apply(lambda x: x["Price"].replace("$",""), axis=1)
     final_df["Price"] = final_df["Price"].astype(float)
 
     final_df["THBPrice"] = final_df["Price"] * final_df["conversion_rate"]
     final_df = final_df.drop(["date", "book_id"], axis=1)
 
-    # save ไฟล์ CSV
+    # save to CSV file
     final_df.to_csv(output_path, index=False)
     print(f"Output to {output_path}")
     print("== End of Workshop 4 ʕ•́ᴥ•̀ʔっ♡ ==")
@@ -78,9 +78,7 @@ with DAG(
 ) as dag:
 
     dag.doc_md = """
-    # Workshop5: Load to BigQuery ด้วยคำสั่ง bq load
-    bq command เป็น command-line tool ที่สามารถใช้จัดการกับ BigQuery ได้
-    ดูเพิ่มเติมได้ที่นี่ https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-csv#loading_csv_data_into_a_table
+    # Load to BigQuery ด้วยคำสั่ง bq load
     """
 
     t1 = PythonOperator(
@@ -105,7 +103,7 @@ with DAG(
         },
     )
 
-    # สร้าง BashOperator เพื่อใช้งานกับ BigQuery และใส่ dependencies
+    # สร้าง BashOperator
 
     t4 = BashOperator(
         task_id="load_to_bq",
